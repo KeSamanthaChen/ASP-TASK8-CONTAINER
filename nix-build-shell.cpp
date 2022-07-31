@@ -5,7 +5,7 @@
 #include <cstring>
 #include <fstream>
 #include <stdlib.h> // execvp
-#include <unistd.h> // fork, exec
+#include <unistd.h> // fork, exec, sethostname
 #include <sys/wait.h> // waitpid
 #include <sched.h> //unshare
 
@@ -55,9 +55,9 @@ int main(int argc, const char** argv) {
     int pid = getpid();
     uid_t uid = getuid();
     gid_t gid = getgid();
-    // unshare
-    if (0!=unshare(CLONE_NEWUSER)) {
-        fprintf(stderr, "create new user namespace failed\n");
+    // unshare CLONE_NEWUSER CLONE_NEWUTS
+    if (0!=unshare(CLONE_NEWUSER | CLONE_NEWUTS)) {
+        fprintf(stderr, "create new namespaces failed\n");
         exit(1);
     }
     std::string uid_file_path;
@@ -85,6 +85,9 @@ int main(int argc, const char** argv) {
         gid_file << "100" << " " << gid << " 1" << std::endl;
         gid_file.close();
     }
+
+    sethostname((char *)"localhost", 9);
+    setdomainname((char *)"(none)", 6);
 
     // before this command, lots of things need to be done
     execvp(exe_argv[0], exe_argv);
