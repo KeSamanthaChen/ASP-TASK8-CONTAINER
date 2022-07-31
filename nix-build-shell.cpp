@@ -52,4 +52,7 @@ int main(int argc, const char** argv) {
 
     execvp(exe_argv[0], exe_argv);
 
+    delete[] exe_argv[0];
+    delete[] exe_argv[2];
+    delete[] exe_argv;
 }
