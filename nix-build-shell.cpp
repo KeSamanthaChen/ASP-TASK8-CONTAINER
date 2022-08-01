@@ -7,6 +7,10 @@
 #include <stdlib.h> // execvp
 #include <unistd.h> // fork, exec, sethostname
 #include <sys/wait.h> // waitpid
+#include <sys/socket.h> // socket
+#include <netinet/in.h> // IPPROTO_IP
+#include <sys/ioctl.h>
+#include <net/if.h>
 #include <sched.h> //unshare
 
 int main(int argc, const char** argv) {
@@ -55,8 +59,8 @@ int main(int argc, const char** argv) {
     int pid = getpid();
     uid_t uid = getuid();
     gid_t gid = getgid();
-    // unshare CLONE_NEWUSER CLONE_NEWUTS
-    if (0!=unshare(CLONE_NEWUSER | CLONE_NEWUTS)) {
+    // unshare CLONE_NEWUSER CLONE_NEWUTS CLONE_NEWNET
+    if (0!=unshare(CLONE_NEWUSER | CLONE_NEWUTS | CLONE_NEWNET)) {
         fprintf(stderr, "create new namespaces failed\n");
         exit(1);
     }
@@ -88,6 +92,18 @@ int main(int argc, const char** argv) {
 
     sethostname((char *)"localhost", 9);
     setdomainname((char *)"(none)", 6);
+
+    // https://github.com/NixOS/nix/blob/280543933507839201547f831280faac614d0514/src/libstore/build/local-derivation-goal.cc
+    int sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
+    if (sockfd == -1) {
+        fprintf(stderr, "open ip socket failed\n");
+    }
+    struct ifreq ifr;
+    strcpy(ifr.ifr_name, "lo");
+    ifr.ifr_flags = IFF_UP | IFF_LOOPBACK | IFF_RUNNING;
+    if (ioctl(sockfd, SIOCSIFFLAGS, &ifr) == -1) {
+        fprintf(stderr, "set loopback interface failed\n");
+    }
 
     // before this command, lots of things need to be done
     execvp(exe_argv[0], exe_argv);
