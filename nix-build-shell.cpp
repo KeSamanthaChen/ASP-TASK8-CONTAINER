@@ -138,7 +138,7 @@ int main(int argc, const char** argv) {
     mkdir((chroot_dir_string + "/dev").c_str(), 0777);
     // chmod, but already 0777
     mkdir((chroot_dir_string + "/tmp").c_str(), 0777);
-    chmod((chroot_dir_string + "/tmp").c_str(), 01777);
+    // chmod((chroot_dir_string + "/tmp").c_str(), 01777);
 
     mkdir((chroot_dir_string + "/proc").c_str(), 0777);
 
@@ -153,31 +153,35 @@ int main(int argc, const char** argv) {
     open((chroot_dir_string + "/dev/urandom").c_str(), O_CREAT, 0777);
     open((chroot_dir_string + "/dev/zero").c_str(), O_CREAT, 0777);
     open((chroot_dir_string + "/dev/ptmx").c_str(), O_CREAT, 0777);
-    open((chroot_dir_string + "/dev/pts").c_str(), O_CREAT, 0777);
-    open((chroot_dir_string + "/dev/shm").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/bin/sh").c_str(), O_CREAT, 0777);
 
-    // // bind mount the /nix directory MS_BIND
-    // // https://man7.org/linux/man-pages/man2/mount.2.html
-    // //    SOURCE   TARGET
-    // mount("/nix", (chroot_dir_string + "/nix").c_str(), "", MS_BIND, 0); // need MS_REC or not?
-    // // mount the /dev related
-    // mount("/dev/full", (chroot_dir_string + "/dev/full").c_str(), "", MS_BIND | MS_REC, 0);
-    // // leave the /dev/kvm for now
-    // mount("/dev/kvm", (chroot_dir_string + "/dev/kvm").c_str(), "", MS_BIND | MS_REC, 0);
-    // mount("/dev/null", (chroot_dir_string + "/dev/null").c_str(), "", MS_BIND | MS_REC, 0);
-    // mount("/dev/random", (chroot_dir_string + "/dev/random").c_str(), "", MS_BIND | MS_REC, 0);
-    // mount("/dev/tty", (chroot_dir_string + "/dev/tty").c_str(), "", MS_BIND | MS_REC, 0);
-    // mount("/dev/urandom", (chroot_dir_string + "/dev/urandom").c_str(), "", MS_BIND | MS_REC, 0);
-    // mount("/dev/zero", (chroot_dir_string + "/dev/zero").c_str(), "", MS_BIND | MS_REC, 0);
-    // mount("/dev/ptmx", (chroot_dir_string + "/dev/ptmx").c_str(), "", MS_BIND | MS_REC, 0);
-    // // bind mount
-    // mount("/dev/pts", (chroot_dir_string + "/dev/pts").c_str(), "", MS_BIND | MS_REC, 0);
-    // // mount a tempfs to this directory, and make it read/write/executable for all users/groups
-    // // chmod? check the source code, problem here
-    // mount("none", (chroot_dir_string + "/dev/shm").c_str(), "tmpfs", 0, 0);
-    // // bind mount the shell path parsed in test 1 from env-vars to /bin/sh in the sandbox
-    // // file, not a directory, problem here
-    // mount(shell_path.c_str(), (chroot_dir_string + "/bin/sh").c_str(), "", MS_BIND | MS_REC, 0);
+    // directory
+    mkdir((chroot_dir_string + "/dev/pts").c_str(), 0777);
+    // directory
+    mkdir((chroot_dir_string + "/dev/shm").c_str(), 0777);
+
+    // bind mount the /nix directory MS_BIND
+    // https://man7.org/linux/man-pages/man2/mount.2.html
+    //    SOURCE   TARGET
+    mount("/nix", (chroot_dir_string + "/nix").c_str(), "", MS_BIND | MS_REC, 0); // need MS_REC or not?
+    // mount the /dev related
+    mount("/dev/full", (chroot_dir_string + "/dev/full").c_str(), "", MS_BIND | MS_REC, 0);
+    // leave the /dev/kvm for now
+    mount("/dev/kvm", (chroot_dir_string + "/dev/kvm").c_str(), "", MS_BIND | MS_REC, 0);
+    mount("/dev/null", (chroot_dir_string + "/dev/null").c_str(), "", MS_BIND | MS_REC, 0);
+    mount("/dev/random", (chroot_dir_string + "/dev/random").c_str(), "", MS_BIND | MS_REC, 0);
+    mount("/dev/tty", (chroot_dir_string + "/dev/tty").c_str(), "", MS_BIND | MS_REC, 0);
+    mount("/dev/urandom", (chroot_dir_string + "/dev/urandom").c_str(), "", MS_BIND | MS_REC, 0);
+    mount("/dev/zero", (chroot_dir_string + "/dev/zero").c_str(), "", MS_BIND | MS_REC, 0);
+    mount("/dev/ptmx", (chroot_dir_string + "/dev/ptmx").c_str(), "", MS_BIND | MS_REC, 0);
+    // bind mount
+    mount("/dev/pts", (chroot_dir_string + "/dev/pts").c_str(), "", MS_BIND | MS_REC, 0);
+    // mount a tempfs to this directory, and make it read/write/executable for all users/groups
+    // chmod? check the source code, problem here
+    mount("none", (chroot_dir_string + "/dev/shm").c_str(), "tmpfs", 0, 0);
+    // bind mount the shell path parsed in test 1 from env-vars to /bin/sh in the sandbox
+    // file, not a directory, problem here
+    mount(shell_path.c_str(), (chroot_dir_string + "/bin/sh").c_str(), "", MS_BIND | MS_REC, 0);
 
     // // create the sym_link
     // symlink("/proc/self/fd", (chroot_dir_string + "/dev/fd").c_str());
