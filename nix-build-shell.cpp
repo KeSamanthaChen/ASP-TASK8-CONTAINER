@@ -45,8 +45,8 @@ int main(int argc, const char** argv) {
     exe_argv[1] = (char *)"-c";
     std::stringstream argv2;
     // need change to "build" maybe
-    argv2 << "source " << file_path_string << "; exec \"$@\" --";
-    // argv2 << "source /build/env-vars; exec \"$@\" --";
+    // argv2 << "source " << file_path_string << "; exec \"$@\" --";
+    argv2 << "source /build/env-vars; exec \"$@\" --";
     for (int i=2; i<argc; i++) {
         // check if there is a space
         std::string argv_string = argv[i];
@@ -220,10 +220,12 @@ int main(int argc, const char** argv) {
     // // mount new instance of procfs to /proc, this step should after "forking into a child process" for PID namespace
     // // as an unpriviledge user, need PID namespaces&mount namespaces
     // // EINVAL for wrong flags
-    // mount("none", (chroot_dir_string + "/proc").c_str(), "proc", 0, 0);
+    // // mount("none", (chroot_dir_string + "/proc").c_str(), "proc", 0, 0);
+    // mount("/proc", (chroot_dir_string + "/proc").c_str(), "", MS_BIND | MS_REC, 0);
+
 
     // // unshare the mount
-    // // unshare(CLONE_NEWNS);
+    // unshare(CLONE_NEWNS);
     // // chroot
     // chdir(chroot_dir);
     // chroot(".");
