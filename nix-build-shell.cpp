@@ -61,7 +61,7 @@ int main(int argc, const char** argv) {
     std::strcpy(exe_argv[2], argv2.str().c_str());
     exe_argv[3] = NULL;
 
-    fprintf(stderr, "test argument: %s\n", exe_argv[2]);
+    fprintf(stderr, "bin/sh: %s\n", exe_argv[0]);
 
     // creating a temporary directory "mkdtemp"
     // build directory of a failing nix build -> temporary directory
@@ -228,8 +228,8 @@ int main(int argc, const char** argv) {
     // unshare the mount
     // unshare(CLONE_NEWNS);
     // chroot
-    chdir(chroot_dir);
-    chroot(".");
+    chroot(chroot_dir);
+    chdir("/");
 
     // before this command, lots of things need to be done
     // the path need to change to /build/env-vars
