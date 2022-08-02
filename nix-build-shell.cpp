@@ -67,7 +67,7 @@ int main(int argc, const char** argv) {
     char tmp_template[] = "/tmp/directory-XXXXXX";
     char* chroot_dir = mkdtemp(tmp_template);
     std::string chroot_dir_string = chroot_dir;
-    fprintf(stderr, "new tmp directory address: %s\n", chroot_dir);
+    // fprintf(stderr, "new tmp directory address: %s\n", chroot_dir);
 
     // create a build directory
     // append have problem like that
@@ -76,14 +76,14 @@ int main(int argc, const char** argv) {
     std::string cp_string = "cp -a ";
     cp_string.append(argv[1]).append("/* ").append(chroot_dir_string).append("/build");
     std::system(cp_string.c_str());
-    fprintf(stderr, "cp success: %s\n", cp_string.c_str());
+    // fprintf(stderr, "cp success: %s\n", cp_string.c_str());
 
     // getuid, getgid
     int pid = getpid();
     uid_t uid = getuid();
     gid_t gid = getgid();
     // unshare CLONE_NEWUSER CLONE_NEWUTS CLONE_NEWNET
-    if (0!=unshare(CLONE_NEWUSER | CLONE_NEWUTS | CLONE_NEWNET)) {
+    if (0!=unshare(CLONE_NEWUSER | CLONE_NEWUTS | CLONE_NEWNET | CLONE_NEWNS)) {
         fprintf(stderr, "create new namespaces failed\n");
         exit(1);
     }
@@ -225,7 +225,7 @@ int main(int argc, const char** argv) {
 
 
     // unshare the mount
-    unshare(CLONE_NEWNS);
+    // unshare(CLONE_NEWNS);
     // chroot
     chdir(chroot_dir);
     chroot(".");
