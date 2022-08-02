@@ -40,11 +40,13 @@ int main(int argc, const char** argv) {
     }
 
     char **exe_argv = new char*[4];
-    exe_argv[0] = new char[shell_path.length()+1];
+    exe_argv[0] = new char[shell_path.length()+1]; // shell path
     std::strcpy(exe_argv[0], shell_path.c_str());
     exe_argv[1] = (char *)"-c";
     std::stringstream argv2;
-    argv2 << "source " << file_path_string << "; exec \"$@\" --";
+    // need change to "build" maybe
+    // argv2 << "source " << file_path_string << "; exec \"$@\" --";
+    argv2 << "source /build/env-vars; exec \"$@\" --";
     for (int i=2; i<argc; i++) {
         // check if there is a space
         std::string argv_string = argv[i];
@@ -81,7 +83,6 @@ int main(int argc, const char** argv) {
     uid_t uid = getuid();
     gid_t gid = getgid();
     // unshare CLONE_NEWUSER CLONE_NEWUTS CLONE_NEWNET
-    // unshare
     if (0!=unshare(CLONE_NEWUSER | CLONE_NEWUTS | CLONE_NEWNET)) {
         fprintf(stderr, "create new namespaces failed\n");
         exit(1);
@@ -219,7 +220,6 @@ int main(int argc, const char** argv) {
     chdir(chroot_dir);
     chroot(".");
 
-    exe_argv[0] = (char *)"/build//env-vars";
     // before this command, lots of things need to be done
     // the path need to change to /build/env-vars
     execvp(exe_argv[0], exe_argv);
