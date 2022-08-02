@@ -217,18 +217,18 @@ int main(int argc, const char** argv) {
         etc_hosts_file << "::1 localhost" << std::endl;
     }
 
-    // // mount new instance of procfs to /proc, this step should after "forking into a child process" for PID namespace
-    // // as an unpriviledge user, need PID namespaces&mount namespaces
-    // // EINVAL for wrong flags
-    // // mount("none", (chroot_dir_string + "/proc").c_str(), "proc", 0, 0);
-    // mount("/proc", (chroot_dir_string + "/proc").c_str(), "", MS_BIND | MS_REC, 0);
+    // mount new instance of procfs to /proc, this step should after "forking into a child process" for PID namespace
+    // as an unpriviledge user, need PID namespaces&mount namespaces
+    // EINVAL for wrong flags
+    // mount("none", (chroot_dir_string + "/proc").c_str(), "proc", 0, 0);
+    mount("/proc", (chroot_dir_string + "/proc").c_str(), "", MS_BIND | MS_REC, 0);
 
 
-    // // unshare the mount
-    // unshare(CLONE_NEWNS);
-    // // chroot
-    // chdir(chroot_dir);
-    // chroot(".");
+    // unshare the mount
+    unshare(CLONE_NEWNS);
+    // chroot
+    chdir(chroot_dir);
+    chroot(".");
 
     // before this command, lots of things need to be done
     // the path need to change to /build/env-vars
