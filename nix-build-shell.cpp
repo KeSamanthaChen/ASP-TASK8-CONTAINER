@@ -183,35 +183,39 @@ int main(int argc, const char** argv) {
     // file, not a directory, problem here
     mount(shell_path.c_str(), (chroot_dir_string + "/bin/sh").c_str(), "", MS_BIND | MS_REC, 0);
 
-    // // create the sym_link
-    // symlink("/proc/self/fd", (chroot_dir_string + "/dev/fd").c_str());
-    // symlink("/proc/self/fd/0", (chroot_dir_string + "/dev/stdin").c_str());
-    // symlink("/proc/self/fd/1", (chroot_dir_string + "/dev/stdout").c_str());
-    // symlink("/proc/self/fd/2", (chroot_dir_string + "/dev/stderr").c_str());
+    // create the sym_link
+    symlink("/proc/self/fd", (chroot_dir_string + "/dev/fd").c_str());
+    symlink("/proc/self/fd/0", (chroot_dir_string + "/dev/stdin").c_str());
+    symlink("/proc/self/fd/1", (chroot_dir_string + "/dev/stdout").c_str());
+    symlink("/proc/self/fd/2", (chroot_dir_string + "/dev/stderr").c_str());
 
     // // write to /etc file
-    // std::ofstream etc_group_file(chroot_dir_string + "/etc/group");
-    // std::ofstream etc_passwd_file(chroot_dir_string + "/etc/passwd");
-    // std::ofstream etc_hosts_file(chroot_dir_string + "/etc/hosts");
+    open((chroot_dir_string + "/etc/group").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/etc/passwd").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/etc/hosts").c_str(), O_CREAT, 0777);
 
-    // if (etc_group_file.is_open()) {
-    //     etc_group_file << "root:x:0:" << std::endl;
-    //     etc_group_file << "nixbld:!:100:" << std::endl;
-    //     etc_group_file << "nogroup:x:65534:" << std::endl;
-    //     etc_group_file.close();
-    // }
+    std::ofstream etc_group_file(chroot_dir_string + "/etc/group");
+    std::ofstream etc_passwd_file(chroot_dir_string + "/etc/passwd");
+    std::ofstream etc_hosts_file(chroot_dir_string + "/etc/hosts");
 
-    // if (etc_passwd_file.is_open()) {
-    //     etc_passwd_file << "root:x:0:0:Nix build user:/build:/noshell" << std::endl;
-    //     etc_passwd_file << "nixbld:x:1000:100:Nix build user:/build:/noshell" << std::endl;
-    //     etc_passwd_file << "nobody:x:65534:65534:Nobody:/:/noshell" << std::endl;
-    //     etc_passwd_file.close();
-    // }
+    if (etc_group_file.is_open()) {
+        etc_group_file << "root:x:0:" << std::endl;
+        etc_group_file << "nixbld:!:100:" << std::endl;
+        etc_group_file << "nogroup:x:65534:" << std::endl;
+        etc_group_file.close();
+    }
 
-    // if (etc_hosts_file.is_open()) {
-    //     etc_hosts_file << "127.0.0.1 localhost" << std::endl;
-    //     etc_hosts_file << "::1 localhost" << std::endl;
-    // }
+    if (etc_passwd_file.is_open()) {
+        etc_passwd_file << "root:x:0:0:Nix build user:/build:/noshell" << std::endl;
+        etc_passwd_file << "nixbld:x:1000:100:Nix build user:/build:/noshell" << std::endl;
+        etc_passwd_file << "nobody:x:65534:65534:Nobody:/:/noshell" << std::endl;
+        etc_passwd_file.close();
+    }
+
+    if (etc_hosts_file.is_open()) {
+        etc_hosts_file << "127.0.0.1 localhost" << std::endl;
+        etc_hosts_file << "::1 localhost" << std::endl;
+    }
 
     // // mount new instance of procfs to /proc, this step should after "forking into a child process" for PID namespace
     // // as an unpriviledge user, need PID namespaces&mount namespaces
