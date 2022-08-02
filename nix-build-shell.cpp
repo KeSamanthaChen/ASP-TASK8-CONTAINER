@@ -45,8 +45,8 @@ int main(int argc, const char** argv) {
     exe_argv[1] = (char *)"-c";
     std::stringstream argv2;
     // need change to "build" maybe
-    // argv2 << "source " << file_path_string << "; exec \"$@\" --";
-    argv2 << "source /build/env-vars; exec \"$@\" --";
+    argv2 << "source " << file_path_string << "; exec \"$@\" --";
+    // argv2 << "source /build/env-vars; exec \"$@\" --";
     for (int i=2; i<argc; i++) {
         // check if there is a space
         std::string argv_string = argv[i];
@@ -127,34 +127,34 @@ int main(int argc, const char** argv) {
         fprintf(stderr, "set loopback interface failed\n");
     }
 
-    // // make sure all mounts are mounted as private
-    // mount(0, "/", 0, MS_PRIVATE | MS_REC, 0);
+    // make sure all mounts are mounted as private
+    mount(0, "/", 0, MS_PRIVATE | MS_REC, 0);
 
-    // // the build box should only contain the following top level directories
-    // mkdir((chroot_dir_string + "/nix").c_str(), 0777);
+    // the build box should only contain the following top level directories
+    mkdir((chroot_dir_string + "/nix").c_str(), 0777);
 
-    // mkdir((chroot_dir_string + "/bin").c_str(), 0777);
-    // mkdir((chroot_dir_string + "/etc").c_str(), 0777);
-    // mkdir((chroot_dir_string + "/dev").c_str(), 0777);
-    // // chmod, but already 0777
-    // mkdir((chroot_dir_string + "/tmp").c_str(), 0777);
-    // chmod((chroot_dir_string + "/tmp").c_str(), 01777);
+    mkdir((chroot_dir_string + "/bin").c_str(), 0777);
+    mkdir((chroot_dir_string + "/etc").c_str(), 0777);
+    mkdir((chroot_dir_string + "/dev").c_str(), 0777);
+    // chmod, but already 0777
+    mkdir((chroot_dir_string + "/tmp").c_str(), 0777);
+    chmod((chroot_dir_string + "/tmp").c_str(), 01777);
 
-    // mkdir((chroot_dir_string + "/proc").c_str(), 0777);
+    mkdir((chroot_dir_string + "/proc").c_str(), 0777);
 
-    // // mkdir for all the subdirectory below
-    // // they are files?? mknod (EPREM) OpenOptions creating the files
-    // // do I need to close them??
-    // open((chroot_dir_string + "/dev/full").c_str(), O_CREAT, 0777);
-    // open((chroot_dir_string + "/dev/kvm").c_str(), O_CREAT, 0777);
-    // open((chroot_dir_string + "/dev/null").c_str(), O_CREAT, 0777);
-    // open((chroot_dir_string + "/dev/random").c_str(), O_CREAT, 0777);
-    // open((chroot_dir_string + "/dev/tty").c_str(), O_CREAT, 0777);
-    // open((chroot_dir_string + "/dev/urandom").c_str(), O_CREAT, 0777);
-    // open((chroot_dir_string + "/dev/zero").c_str(), O_CREAT, 0777);
-    // open((chroot_dir_string + "/dev/ptmx").c_str(), O_CREAT, 0777);
-    // open((chroot_dir_string + "/dev/pts").c_str(), O_CREAT, 0777);
-    // open((chroot_dir_string + "/dev/shm").c_str(), O_CREAT, 0777);
+    // mkdir for all the subdirectory below
+    // they are files?? mknod (EPREM) OpenOptions creating the files
+    // do I need to close them??
+    open((chroot_dir_string + "/dev/full").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/dev/kvm").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/dev/null").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/dev/random").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/dev/tty").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/dev/urandom").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/dev/zero").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/dev/ptmx").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/dev/pts").c_str(), O_CREAT, 0777);
+    open((chroot_dir_string + "/dev/shm").c_str(), O_CREAT, 0777);
 
     // // bind mount the /nix directory MS_BIND
     // // https://man7.org/linux/man-pages/man2/mount.2.html
