@@ -40,13 +40,14 @@ int main(int argc, const char** argv) {
     }
 
     char **exe_argv = new char*[4];
-    exe_argv[0] = new char[shell_path.length()+1]; // shell path
-    std::strcpy(exe_argv[0], shell_path.c_str());
+    // exe_argv[0] = new char[shell_path.length()+1]; // shell path
+    // std::strcpy(exe_argv[0], shell_path.c_str());
+    exe_argv[0] = (char*)"/bin/sh";
     exe_argv[1] = (char *)"-c";
     std::stringstream argv2;
     // need change to "build" maybe
-    argv2 << "source " << file_path_string << "; exec \"$@\" --";
-    // argv2 << "source /build/env-vars; exec \"$@\" --";
+    // argv2 << "source " << file_path_string << "; exec \"$@\" --";
+    argv2 << "source /build/env-vars; exec \"$@\" --";
     for (int i=2; i<argc; i++) {
         // check if there is a space
         std::string argv_string = argv[i];
