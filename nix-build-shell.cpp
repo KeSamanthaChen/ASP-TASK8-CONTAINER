@@ -40,14 +40,18 @@ int main(int argc, const char** argv) {
     }
 
     char **exe_argv = new char*[4];
+
     // exe_argv[0] = new char[shell_path.length()+1]; // shell path
     // std::strcpy(exe_argv[0], shell_path.c_str());
     exe_argv[0] = (char*)"/bin/sh";
+
     exe_argv[1] = (char *)"-c";
     std::stringstream argv2;
     // need change to "build" maybe
+
     // argv2 << "source " << file_path_string << "; exec \"$@\" --";
     argv2 << "source /build/env-vars; exec \"$@\" --";
+
     for (int i=2; i<argc; i++) {
         // check if there is a space
         std::string argv_string = argv[i];
@@ -55,10 +59,6 @@ int main(int argc, const char** argv) {
             argv_string.insert(0, "\'");
             argv_string.append("\'");
         }
-        // if (argv_string.find_first_of("%") != std::string::npos) { // found a space
-        //     argv_string.insert(0, "\'");
-        //     argv_string.append("\'");
-        // }
         argv2 << " " << argv_string;
     }
     exe_argv[2] = new char[argv2.str().length()+1];
@@ -88,10 +88,11 @@ int main(int argc, const char** argv) {
     uid_t uid = getuid();
     gid_t gid = getgid();
     // unshare CLONE_NEWUSER CLONE_NEWUTS CLONE_NEWNET
-    if (0!=unshare(CLONE_NEWUSER | CLONE_NEWUTS | CLONE_NEWNET | CLONE_NEWNS)) {
+    if (0!=unshare(CLONE_NEWUSER | CLONE_NEWUTS | CLONE_NEWNET | CLONE_NEWNS | CLONE_NEWPID | CLONE_NEWIPC)) {
         fprintf(stderr, "create new namespaces failed\n");
         exit(1);
     }
+
     std::string uid_file_path;
     std::string gid_file_path;
     std::string setgroups_file_path;
@@ -223,27 +224,18 @@ int main(int argc, const char** argv) {
         etc_hosts_file << "::1 localhost" << std::endl;
     }
 
-    // mount new instance of procfs to /proc, this step should after "forking into a child process" for PID namespace
-    // as an unpriviledge user, need PID namespaces&mount namespaces
-    // EINVAL for wrong flags
-    // mount("none", (chroot_dir_string + "/proc").c_str(), "proc", 0, 0);
-    mount("/proc", (chroot_dir_string + "/proc").c_str(), "", MS_BIND | MS_REC, 0);
+    pid_t child_pid = fork();
+    if (child_pid == 0) {
+        // test the pid one, change the arguments in exe_argv, the execvp works
+        mount("none", (chroot_dir_string + "/proc").c_str(), "proc", 0, 0);
+        chdir(chroot_dir);
+        chroot("."); // problem here
 
-
-    // unshare the mount
-    // unshare(CLONE_NEWNS);
-    // chroot
-    chdir(chroot_dir);
-    chroot(".");
-
-    // before this command, lots of things need to be done
-    // the path need to change to /build/env-vars
-    execvp(exe_argv[0], exe_argv);
-
-    delete[] exe_argv[0];
-    delete[] exe_argv[2];
-    delete[] exe_argv;
+        execvp(exe_argv[0], exe_argv);
+        delete[] exe_argv[0];
+        delete[] exe_argv[2];
+        delete[] exe_argv;
+    }
 
     return 0;
-
 }
