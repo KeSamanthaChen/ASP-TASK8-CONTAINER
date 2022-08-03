@@ -55,20 +55,24 @@ int main(int argc, const char** argv) {
             argv_string.insert(0, "\'");
             argv_string.append("\'");
         }
+        if (argv_string.find_first_of("%") != std::string::npos) { // found a space
+            argv_string.insert(0, "\'");
+            argv_string.append("\'");
+        }
         argv2 << " " << argv_string;
     }
     exe_argv[2] = new char[argv2.str().length()+1];
     std::strcpy(exe_argv[2], argv2.str().c_str());
     exe_argv[3] = NULL;
 
-    fprintf(stderr, "bin/sh: %s\n", exe_argv[0]);
+    fprintf(stderr, "execute argument: %s\n", exe_argv[2]);
 
     // creating a temporary directory "mkdtemp"
     // build directory of a failing nix build -> temporary directory
     char tmp_template[] = "/tmp/directory-XXXXXX";
     char* chroot_dir = mkdtemp(tmp_template);
     std::string chroot_dir_string = chroot_dir;
-    // fprintf(stderr, "new tmp directory address: %s\n", chroot_dir);
+    fprintf(stderr, "new tmp directory address: %s\n", chroot_dir);
 
     // create a build directory
     // append have problem like that
@@ -139,7 +143,7 @@ int main(int argc, const char** argv) {
     mkdir((chroot_dir_string + "/dev").c_str(), 0777);
     // chmod, but already 0777
     mkdir((chroot_dir_string + "/tmp").c_str(), 0777);
-    // chmod((chroot_dir_string + "/tmp").c_str(), 01777);
+    chmod((chroot_dir_string + "/tmp").c_str(), 01777);
 
     mkdir((chroot_dir_string + "/proc").c_str(), 0777);
 
@@ -160,6 +164,7 @@ int main(int argc, const char** argv) {
     mkdir((chroot_dir_string + "/dev/pts").c_str(), 0777);
     // directory
     mkdir((chroot_dir_string + "/dev/shm").c_str(), 0777);
+    chmod((chroot_dir_string + "/dev/shm").c_str(), 01777);
 
     // bind mount the /nix directory MS_BIND
     // https://man7.org/linux/man-pages/man2/mount.2.html
@@ -228,8 +233,8 @@ int main(int argc, const char** argv) {
     // unshare the mount
     // unshare(CLONE_NEWNS);
     // chroot
-    chroot(chroot_dir);
-    chdir("/");
+    chdir(chroot_dir);
+    chroot(".");
 
     // before this command, lots of things need to be done
     // the path need to change to /build/env-vars
