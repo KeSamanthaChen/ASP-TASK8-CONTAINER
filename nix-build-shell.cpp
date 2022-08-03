@@ -51,14 +51,14 @@ int main(int argc, const char** argv) {
     for (int i=2; i<argc; i++) {
         // check if there is a space
         std::string argv_string = argv[i];
-        if (argv_string.find_first_of(" ") != std::string::npos) { // found a space
+        if (argv_string.find_first_of(" ") != std::string::npos || argv_string.find_first_of("%") != std::string::npos) { // found a space
             argv_string.insert(0, "\'");
             argv_string.append("\'");
         }
-        if (argv_string.find_first_of("%") != std::string::npos) { // found a space
-            argv_string.insert(0, "\'");
-            argv_string.append("\'");
-        }
+        // if (argv_string.find_first_of("%") != std::string::npos) { // found a space
+        //     argv_string.insert(0, "\'");
+        //     argv_string.append("\'");
+        // }
         argv2 << " " << argv_string;
     }
     exe_argv[2] = new char[argv2.str().length()+1];
